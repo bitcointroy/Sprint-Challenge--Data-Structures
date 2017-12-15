@@ -1,3 +1,6 @@
+// I'm sure I barely scratched the surface of the changes needed to refactor this 
+// to use linked lists, but I've added comments where I would start modifying code.
+
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 const { LimitedArray, getIndexBelowMax } = require('./hash-table-helpers');
@@ -9,12 +12,14 @@ class HashTable {
     // Do not modify anything inside of the constructor
   }
 
+  // this is the temporary performance hit I was talking about in the README. 
   resize() {
     this.limit *= 2;
     const oldStorage = this.storage;
     this.storage = new LimitedArray(this.limit);
     oldStorage.each((bucket) => {
       if (!bucket) return;
+      // this will change with a Linked List
       bucket.forEach((pair) => {
         this.insert(pair[0], pair[1]);
       });
@@ -33,11 +38,12 @@ class HashTable {
   // Fetch the bucket associated with the given key using the getIndexBelowMax function
   // If no bucket has been created for that index, instantiate a new bucket and add the key, value pair to that new bucket
   // If the key already exists in the bucket, the newer value should overwrite the older value associated with that key
+  // 
   insert(key, value) {
     if (this.capacityIsFull()) this.resize();
     const index = getIndexBelowMax(key.toString(), this.limit);
     let bucket = this.storage.get(index) || [];
-
+    // This will need to use "contains" from the LinkedList class instead of .filter
     bucket = bucket.filter(item => item[0] !== key);
     bucket.push([key, value]);
     this.storage.set(index, bucket);
@@ -50,6 +56,7 @@ class HashTable {
     let bucket = this.storage.get(index);
 
     if (bucket) {
+      // "contains", and "removeHead" could be used here. 
       bucket = bucket.filter(item => item[0] !== key);
       this.storage.set(index, bucket);
     }
@@ -62,6 +69,7 @@ class HashTable {
     const bucket = this.storage.get(index);
     let retrieved;
     if (bucket) {
+      // again, "contains" instead of .filter
       retrieved = bucket.filter(item => item[0] === key)[0];
     }
 
